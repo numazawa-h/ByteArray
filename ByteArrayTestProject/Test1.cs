@@ -155,8 +155,12 @@ namespace ByteArrayTestProject
 
             // Take()
             ba = ByteArray.ParseHex("1234567890abcdef");
-            Assert.AreEqual("1234", ba.Take(2).to_hex());       // Take(2)で先頭2バイト取得
+            Assert.AreEqual("12", ba.Take().to_hex());      // Take()で先頭1バイト取得
+            Assert.AreEqual("1234", ba.Take(2).to_hex());   // Take(2)で先頭2バイト取得
             Assert.AreEqual("1234567890ABCDEF0000", ba.Take(10).to_hex());   // 長さが元データより長ければゼロ埋め
+            Assert.AreEqual("CDEF", ba.Take(-2).to_hex());   // マイナスなら末尾バイト取得
+            Assert.AreEqual("00001234567890ABCDEF", ba.Take(-10).to_hex());   // 長さが元データより長ければゼロ埋め
+            Assert.AreEqual("", ba.Take(0).to_hex());       // Take(0)で0バイトを返還
 
             // Shift()
 

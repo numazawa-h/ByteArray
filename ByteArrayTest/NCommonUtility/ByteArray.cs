@@ -172,14 +172,34 @@ namespace NCommonUtility
             return new ByteArray(dst);
         }
 
-        public ByteArray Take(int cnt)
-        {
-            byte[] dst = new byte[cnt];
-            if (cnt > _dat.Length)
+        public ByteArray Take(int cnt = 1)
+        {   
+            if (cnt == 0)
             {
-                cnt = _dat.Length;
+                return new ByteArray();
             }
-            Buffer.BlockCopy(_dat, 0, dst, 0, cnt);
+
+            int src_ofs = 0;
+            int dst_ofs = 0;
+            if (cnt < 0)
+            {
+                // cnt がマイナスなら末尾から取得
+                cnt = - cnt;
+                src_ofs = _dat.Length - cnt;
+            }
+            if (src_ofs < 0)
+            {
+                // オフセットがマイナスなら先頭ゼロ埋め
+                dst_ofs = -src_ofs;
+                src_ofs = 0;
+            }
+
+            byte[] dst = new byte[cnt];
+            if ((src_ofs+cnt) > _dat.Length)
+            {
+                cnt = _dat.Length - src_ofs;
+            }
+            Buffer.BlockCopy(_dat, src_ofs, dst, dst_ofs, cnt);
             return new ByteArray(dst);
         }
 
