@@ -134,6 +134,17 @@ namespace ByteArrayTestProject
             Assert.AreEqual("あいうえお", ba1.to_text_sjis(28,10));
             Assert.AreEqual("82A082A282A482A682A8", ba1.to_hex(28, 10));
 
+            // StrToByte
+            ba = ByteArray.StrToByte("0123456789abcdEF");
+            Assert.AreEqual("0123456789ABCDEF", ba.to_hex());   //16進文字([0-9,a-f,A-F])のみの文字列ならParseHex()と同じ
+            ba = ByteArray.StrToByte("test01");
+            Assert.AreEqual("746573743031", ba.to_hex());   //16進文字以外があるとEncoding.ASCIIで変換
+            ba = ByteArray.StrToByte("ac100");
+            Assert.AreEqual("AC1000", ba.to_hex());     //ASCIIのつもりでも16進文字だけになることがあるので注意
+            ba = ByteArray.StrToByte("ac100 ");
+            Assert.AreEqual("6163313030", ba.to_hex()); //最後にスペースを追加するとASCIIになる(最後のスペースは含まれない)
+
+
             // Fill(), Clear()
             ba = new ByteArray().Expand(8);
             Assert.AreEqual("0000000000000000", ba.to_hex());
