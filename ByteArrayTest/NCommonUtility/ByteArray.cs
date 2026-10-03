@@ -316,19 +316,13 @@ namespace NCommonUtility
         /// <summary>
         /// 16進文字列への変換
         /// </summary>
-        /// <param name="ofs">offset</param>
-        /// <param name="len">length</param>
         /// <param name="sep">separator</param>
         /// <returns>16進文字列/<returns>
-        public string to_hex(int ofs=0, int len = 0, string sep=null)
+        public string to_hex(string sep=null)
         {
             StringBuilder sb = new StringBuilder();
-            if (len == 0)
-            {
-                len = _dat.Length-ofs;
-            }
             bool bFirst = true;
-            for (int i = 0; i < len; i++, ofs++)
+            for (int i = 0; i < _dat.Length; i++)
             {
                 if (sep != null)
                 {
@@ -341,7 +335,7 @@ namespace NCommonUtility
                         sb.Append(sep);
                     }
                 }
-                sb.Append($"{_dat[ofs]:X2}");
+                sb.Append($"{_dat[i]:X2}");
             }
 
             return sb.ToString();
@@ -350,19 +344,13 @@ namespace NCommonUtility
         /// <summary>
         /// ASCII文字列への変換
         /// </summary>
-        /// <param name="ofs">offset</param>
-        /// <param name="len">length</param>
         /// <param name="sep">separator</param>
         /// <returns>表示できない文字はピリオド(".")に変換</returns>
-        public string to_text_ascii(int ofs = 0, int len = 0, string sep = null)
+        public string to_text_ascii(string sep = null)
         {
             StringBuilder sb = new StringBuilder();
-            if (len == 0)
-            {
-                len = _dat.Length - ofs;
-            }
             bool bFirst = true;
-            for (int i = 0; i < len; i++, ofs++)
+            for (int i = 0; i < _dat.Length; i++)
             {
                 if (sep != null)
                 {
@@ -375,7 +363,7 @@ namespace NCommonUtility
                         sb.Append(sep);
                     }
                 }
-                byte b = _dat[ofs];
+                byte b = _dat[i];
                 if (b < 0x20 || b>0x7e)
                 {
                     sb.Append(".");
@@ -393,43 +381,33 @@ namespace NCommonUtility
         /// <summary>
         /// 指定された文字コードで文字列に変換
         /// </summary>
-        /// <param name="ofs">offset</param>
-        /// <param name="len">length</param>
         /// <returns>文字列</returns>
-        public string to_text_sjis(int ofs = 0, int len = 0)
+        public string to_text_sjis()
         {
-            return to_text(Encoding.GetEncoding("Shift_JIS"), ofs, len);
+            return to_text(Encoding.GetEncoding("Shift_JIS"));
         }
-        public string to_text_utf8(int ofs = 0, int len = 0)
+        public string to_text_utf8()
         {
-            return to_text(Encoding.UTF8, ofs, len);
+            return to_text(Encoding.UTF8);
         }
-        public string to_text_unicode(int ofs = 0, int len = 0)
+        public string to_text_unicode()
         {
-            return to_text(Encoding.Unicode, ofs, len);
+            return to_text(Encoding.Unicode);
         }
-        public string to_text(int ofs = 0, int len = 0)
+        public string to_text()
         {
             // C#の文字列は、UTF16(リトルエンディアン)なので、デフォルトはUnicode
-            return to_text(Encoding.Unicode, ofs, len);
+            return to_text(Encoding.Unicode);
         }
 
         /// <summary>
         /// 指定された文字コードで文字列に変換
         /// </summary>
         /// <param name="enc">encoding</param>
-        /// <param name="ofs">offset</param>
-        /// <param name="len">length</param>
         /// <returns>文字列</returns>
-        public string to_text(Encoding enc, int ofs = 0, int len = 0)
+        public string to_text(Encoding enc)
         {
-            if (len == 0)
-            {
-                len = _dat.Length - ofs;
-            }
-            byte[] b = new byte[len];
-            Buffer.BlockCopy(_dat, ofs, b, 0, len);
-            return enc.GetString(b);
+            return enc.GetString(_dat);
         }
 
         //

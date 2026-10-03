@@ -94,11 +94,11 @@ namespace ByteArrayTestProject
             CollectionAssert.AreEqual(dat_append, ba1.GetData());
 
             // 文字列への変換
-            Assert.AreEqual("BC-DE-F0-12", ba1.to_hex(5, 4, "-"));
-            Assert.AreEqual("1 2 3 4 a b c d A B C D", ba1.to_text_ascii(16, 12, " "));
-            Assert.AreEqual("1234abcd", ba1.to_text_utf8(16,8));
-            Assert.AreEqual("あいうえお", ba1.to_text_sjis(28,10));
-            Assert.AreEqual("82A082A282A482A682A8", ba1.to_hex(28, 10));
+            Assert.AreEqual("BC-DE-F0-12", ba1.Take(5, 4).to_hex("-"));
+            Assert.AreEqual("1 2 3 4 a b c d A B C D", ba1.Take(16, 12).to_text_ascii(" "));
+            Assert.AreEqual("1234abcd", ba1.Take(16, 8).to_text_utf8());
+            Assert.AreEqual("あいうえお", ba1.Take(28, 10).to_text_sjis());
+            Assert.AreEqual("82A082A282A482A682A8", ba1.Take(28, 10).to_hex());
 
             // StrToByte
             ba = ByteArray.StrToByte("0123456789abcdEF");
