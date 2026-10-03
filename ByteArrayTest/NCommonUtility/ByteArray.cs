@@ -322,12 +322,14 @@ namespace NCommonUtility
         /// <summary>
         /// 16進文字列への変換
         /// </summary>
-        /// <param name="sep">separator</param>
+        /// <param name="sep">区切り文字(separator)</param>
+        /// <param name="separate_size">区切り文字を挿入する間隔</param>
         /// <returns>16進文字列/<returns>
-        public string to_hex(string sep=null)
+        public string to_hex(string sep=null, int separate_size=1)
         {
             StringBuilder sb = new StringBuilder();
             bool bFirst = true;
+            int separate_cnt = 0;
             for (int i = 0; i < _dat.Length; i++)
             {
                 if (sep != null)
@@ -338,7 +340,12 @@ namespace NCommonUtility
                     }
                     else
                     {
-                        sb.Append(sep);
+                        ++separate_cnt;
+                        if(separate_cnt >= separate_size)
+                        {
+                            sb.Append(sep);
+                            separate_cnt = 0;
+                        }
                     }
                 }
                 sb.Append($"{_dat[i]:X2}");
@@ -350,12 +357,14 @@ namespace NCommonUtility
         /// <summary>
         /// ASCII文字列への変換
         /// </summary>
-        /// <param name="sep">separator</param>
+        /// <param name="sep">区切り文字(separator)</param>
+        /// <param name="separate_size">区切り文字を挿入する間隔</param>
         /// <returns>表示できない文字はピリオド(".")に変換</returns>
-        public string to_text_ascii(string sep = null)
+        public string to_text_ascii(string sep = null, int separate_size = 1)
         {
             StringBuilder sb = new StringBuilder();
             bool bFirst = true;
+            int separate_cnt = 0;
             for (int i = 0; i < _dat.Length; i++)
             {
                 if (sep != null)
@@ -366,7 +375,12 @@ namespace NCommonUtility
                     }
                     else
                     {
-                        sb.Append(sep);
+                        ++separate_cnt;
+                        if (separate_cnt >= separate_size)
+                        {
+                            sb.Append(sep);
+                            separate_cnt = 0;
+                        }
                     }
                 }
                 byte b = _dat[i];

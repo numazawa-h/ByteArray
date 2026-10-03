@@ -97,7 +97,9 @@ namespace ByteArrayTestProject
 
             // 文字列への変換
             Assert.AreEqual("BC-DE-F0-12", ba1.Take(5, 4).to_hex("-"));
+            Assert.AreEqual("12345678 9ABCDEF0 12345678 9ABCDEF0", ba1.Take(0, 16).to_hex(" ", 4));
             Assert.AreEqual("1 2 3 4 a b c d A B C D", ba1.Take(16, 12).to_text_ascii(" "));
+            Assert.AreEqual("1234,abcd,ABCD", ba1.Take(16, 12).to_text_ascii(",", 4));
             Assert.AreEqual("1234abcd", ba1.Take(16, 8).to_text_utf8());
             Assert.AreEqual("あいうえお", ba1.Take(28, 10).to_text_sjis());
             Assert.AreEqual("82A082A282A482A682A8", ba1.Take(28, 10).to_hex());
