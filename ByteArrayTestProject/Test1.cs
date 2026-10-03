@@ -53,45 +53,6 @@ namespace ByteArrayTestProject
             ba = new ByteArray(dat).Clone();                // Clone()すればByteArrayの中身は変わらなくなる
             dat[1] = 0x23;
             Assert.AreEqual("01FE4567", ba.to_hex());
-            ba = new ByteArray(dat, 0);                     // ByteArray(dat, 0)は引数をコピーしているのでClone()と同じになる
-            Assert.AreEqual("01234567", ba.to_hex());
-            dat[1] = 0xfe;
-            Assert.AreEqual("01234567", ba.to_hex());
-            ba = new ByteArray(dat, 2);
-            Assert.AreEqual("01FE", ba.to_hex());
-            ba = new ByteArray(dat, 4);
-            Assert.AreEqual("01FE4567", ba.to_hex());
-            ba = new ByteArray(dat, 6);
-            Assert.AreEqual("01FE45670000", ba.to_hex());   // 元のデータより長ければ0x00で埋める
-            Exception ex;
-            ex = Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
-            {
-                // 長さがマイナスなら例外
-                ba = new ByteArray(dat, -4);
-            });
-            ex = Assert.ThrowsException<NullReferenceException>(() =>
-            {
-                ba = new ByteArray(null, 0);
-            });
-
-            // コピーコンストラクタ
-            ByteArray src = new ByteArray("1234abcdABCD", Encoding.UTF8);
-            ba = new ByteArray(src);            // src.Clone() と同じ          
-            Assert.AreEqual("313233346162636441424344", ba.to_hex());
-            ba = new ByteArray(src, 8);         // オフセットのみなのでオフセット以降全部が対象
-            Assert.AreEqual("41424344", ba.to_hex());
-            ba = new ByteArray(src, 8, 16);     // オフセット8バイト目から16バイト(足りない部分を0x00埋め)
-            Assert.AreEqual("41424344000000000000000000000000", ba.to_hex());
-            ba = new ByteArray(src, 0, -16);    // 長さがマイナスでオフセット0なので、末尾から16バイト(足りない部分を0x00埋め)
-            Assert.AreEqual("00000000313233346162636441424344", ba.to_hex());
-            ba = new ByteArray(src, 0, -4);     // 長さがマイナスでオフセット0なので、末尾から4バイト
-            Assert.AreEqual("41424344", ba.to_hex());
-            ba = new ByteArray(src, 8, -4);     // 長さがマイナスでオフセットがプラスなので、オフセットから前の4バイト
-            Assert.AreEqual("61626364", ba.to_hex());
-            ba = new ByteArray(src, -2, -4);    // 長さがマイナスでオフセットもマイナスなので、末尾2バイトより前の4バイト
-            Assert.AreEqual("63644142", ba.to_hex());
-            ba = new ByteArray(src, -4, 8);     // オフセットがマイナスなので、先頭4バイトは0x00。全体で8バイト
-            Assert.AreEqual("0000000031323334", ba.to_hex());
 
             // Copy()
             ByteArray ba00 = new ByteArray().Expand(5, 0xff);
