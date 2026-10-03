@@ -102,14 +102,16 @@ namespace ByteArrayTestProject
             Assert.AreEqual("FF1111FFFF", ba00.to_hex());
             ba00.Copy(ba01, 4, 2);      // コピー先オフセット+コピー長が自身データを超えていれば、自身データの長さまでをコピーする
             Assert.AreEqual("FF1111FF11", ba00.to_hex());
-            ba00.Copy(ba01, 0, 3);      // コピー長が元データより短ければ、足りない部分を0x00埋め
+            ba00.Copy(ba01, 0, 3);      // コピー長が元データより長ければ、足りない部分を0x00埋め
             Assert.AreEqual("111100FF11", ba00.to_hex());
 
             // ParseHex()
-            ByteArray ba1 = ByteArray.ParseHex("[ 1234 5678 9ABC def0 ]");  // 16進文字列([0-9,a-f,A-F])以外は無視する
+            ByteArray ba1 = ByteArray.ParseHex("[ 1234 5678 9ABC def0 ]");  // 16進文字([0-9,a-f,A-F])以外は無視する
             Assert.AreEqual("123456789ABCDEF0", ba1.to_hex());
             ByteArray ba2 = ByteArray.ParseHex("[  31323334 61626364 41424344]");
             Assert.AreEqual("1234abcdABCD", ba2.to_text_ascii());
+
+            // 文字列コンストラクタ
             Encoding sjis = Encoding.GetEncoding("Shift_JIS");
             ByteArray ba3 = new ByteArray("あいうえお", sjis);
             Assert.AreEqual("82A082A282A482A682A8", ba3.to_hex());
