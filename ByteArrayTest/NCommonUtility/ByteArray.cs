@@ -180,10 +180,16 @@ namespace NCommonUtility
         }
 
         public ByteArray Take(int ofs, int cnt)
-        {   
+        {
+            // cnt が 0なら末尾までが対象
             if (cnt == 0)
             {
-                return new ByteArray();
+                cnt = _dat.Length - ofs;
+                // ofs が末尾以降なら 0バイト
+                if ( cnt <= 0)
+                {
+                    return new ByteArray();
+                }
             }
 
             int src_ofs = ofs;
