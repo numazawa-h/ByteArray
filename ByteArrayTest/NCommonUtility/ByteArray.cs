@@ -152,12 +152,14 @@ namespace NCommonUtility
             Fill(0);
         }
 
-        public void Fill(byte data)
+        public ByteArray Fill(byte data = 0xff)
         {
             for (int idx = 0; idx < _dat.Length; idx++)
             {
                 _dat[idx] = data;
             }
+
+            return this;
         }
 
         public int Length()

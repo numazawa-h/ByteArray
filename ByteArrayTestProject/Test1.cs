@@ -146,12 +146,12 @@ namespace ByteArrayTestProject
 
 
             // Fill(), Clear()
-            ba = new ByteArray().Expand(8);
-            Assert.AreEqual("0000000000000000", ba.to_hex());
-            ba.Fill(0xfe);
+            ba = new ByteArray().Expand(8).Fill(0xfe);
             Assert.AreEqual("FEFEFEFEFEFEFEFE", ba.to_hex());
             ba.Clear();
-            Assert.AreEqual("0000000000000000", ba.to_hex());
+            Assert.AreEqual("0000000000000000", ba.to_hex());   // Fill(0) と同じ
+            ba.Fill();
+            Assert.AreEqual("FFFFFFFFFFFFFFFF", ba.to_hex());   // defaultは 0xFF
 
             // Take()
             ba = ByteArray.ParseHex("1234567890abcdef");
