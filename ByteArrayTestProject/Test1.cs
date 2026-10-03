@@ -143,8 +143,9 @@ namespace ByteArrayTestProject
             Assert.AreEqual("0000000000000000", ba.to_hex());
 
             // Take()
-            ba = ByteArray.ParseHex("123456789abcdef");
+            ba = ByteArray.ParseHex("1234567890abcdef");
             Assert.AreEqual("1234", ba.Take(2).to_hex());       // Take(2)で先頭2バイト取得
+            Assert.AreEqual("1234567890ABCDEF0000", ba.Take(10).to_hex());   // 長さが元データより長ければゼロ埋め
 
             // Shift()
 
