@@ -45,14 +45,20 @@ namespace NCommonUtility
         /// </summary>
         /// <remarks>
         /// 引数のdatはコピーされずにそのまま参照として格納されるので注意！
-        /// 生成後、引数のdatを他で使用するのなら、以下のどちらかを使用すること。
+        /// 生成後、引数のdatを他で使用するのなら、Clone()を使用すること。
         /// 　new ByteArray(dat).Clone()
-        /// 　new ByteArray(dat, 0)
         /// </remarks>
-        /// <param name="dat"></param>
+        /// <param name="dat">元データ(null ならEmptyで生成)</param>
         public ByteArray(byte[] dat)
         {
-            _dat = dat;
+            if (dat == null)
+            {
+                _dat = System.Array.Empty<byte>();
+            }
+            else
+            {
+                _dat = dat;
+            }
         }
 
         /// <summary>

@@ -58,6 +58,8 @@ namespace ByteArrayTestProject
             ba = new ByteArray(dat).Clone();                // Clone()すればByteArrayの中身は変わらなくなる
             dat[1] = 0x23;
             Assert.AreEqual("01FE4567", ba.to_hex());
+            ba = new ByteArray(null);
+            Assert.AreEqual("", ba.to_hex());               // null なら 0バイト
 
             // Copy()
             ByteArray ba00 = new ByteArray().Expand(5, 0xff);
