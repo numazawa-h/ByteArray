@@ -155,12 +155,18 @@ namespace ByteArrayTestProject
 
             // Take()
             ba = ByteArray.ParseHex("1234567890abcdef");
-            Assert.AreEqual("12", ba.Take().to_hex());      // Take()で先頭1バイト取得
-            Assert.AreEqual("1234", ba.Take(2).to_hex());   // Take(2)で先頭2バイト取得
-            Assert.AreEqual("1234567890ABCDEF0000", ba.Take(10).to_hex());   // 長さが元データより長ければゼロ埋め
-            Assert.AreEqual("CDEF", ba.Take(-2).to_hex());   // マイナスなら末尾バイト取得
-            Assert.AreEqual("00001234567890ABCDEF", ba.Take(-10).to_hex());   // 長さが元データより長ければゼロ埋め
-            Assert.AreEqual("", ba.Take(0).to_hex());       // Take(0)で0バイトを返還
+            Assert.AreEqual("12", ba.Take().to_hex());              // Take()で先頭1バイト取得
+            Assert.AreEqual("1234", ba.Take(2).to_hex());           // Take(2)で先頭2バイト取得
+            Assert.AreEqual("1234567890ABCDEF0000", ba.Take(10).to_hex());  // 長さが元データより長ければゼロ埋め
+            Assert.AreEqual("CDEF", ba.Take(-2).to_hex());          // マイナスなら末尾バイト取得
+            Assert.AreEqual("00001234567890ABCDEF", ba.Take(-10).to_hex()); // 長さが元データより長ければゼロ埋め
+            Assert.AreEqual("", ba.Take(0).to_hex());               // Take(0)で0バイトを返還
+            Assert.AreEqual("567890ABCD", ba.Take( 2, 5).to_hex()); // Take(ofs, len)でオフセットと長さ指定
+            Assert.AreEqual("0000123456", ba.Take(-2, 5).to_hex()); // オフセットがマイナスならゼロ埋め
+            Assert.AreEqual("0000001234", ba.Take( 2,-5).to_hex()); // 長さがマイナスなら、オフセットより前の部分を取得
+            Assert.AreEqual("7890ABCDEF", ba.Take( 0,-5).to_hex()); // 長さがマイナスでオフセットが 0なら、末尾バイト取得
+            Assert.AreEqual("34567890AB", ba.Take(-2,-5).to_hex()); // 両方マイナスなら、末尾2バイトより前の5バイトを取得
+            Assert.AreEqual("001234567890ABCDEF00", ba.Take(-1, 10).to_hex()); // 左右ゼロ埋め
 
             // Shift()
 

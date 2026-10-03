@@ -175,28 +175,43 @@ namespace NCommonUtility
         }
 
         public ByteArray Take(int cnt = 1)
+        {
+            return Take(0, cnt);
+        }
+
+        public ByteArray Take(int ofs, int cnt)
         {   
             if (cnt == 0)
             {
                 return new ByteArray();
             }
 
-            int src_ofs = 0;
+            int src_ofs = ofs;
             int dst_ofs = 0;
+
+            // cnt がマイナスなら起点を終点にする
             if (cnt < 0)
             {
-                // cnt がマイナスなら末尾から取得
-                cnt = - cnt;
-                src_ofs = _dat.Length - cnt;
-            }
-            if (src_ofs < 0)
-            {
-                // オフセットがマイナスなら先頭ゼロ埋め
-                dst_ofs = -src_ofs;
-                src_ofs = 0;
+                if (src_ofs <= 0)
+                {
+                    // src_ofsもマイナスなら起点を末尾から src_ofs分ずらした位置にする
+                    src_ofs = _dat.Length + src_ofs;
+                }
+                // 起点を終点にする(起点をcnt分前にずらす)
+                cnt = -cnt;
+                src_ofs = src_ofs - cnt;
             }
 
             byte[] dst = new byte[cnt];
+
+            // 起点がマイナスなら先頭ゼロ埋め
+            if (src_ofs < 0)
+            {
+                dst_ofs = -src_ofs;
+                src_ofs = 0;
+                cnt -= dst_ofs;
+            }
+            // コピーする長さが元のデータを超えていたら元のデータ長にあわせる
             if ((src_ofs+cnt) > _dat.Length)
             {
                 cnt = _dat.Length - src_ofs;
