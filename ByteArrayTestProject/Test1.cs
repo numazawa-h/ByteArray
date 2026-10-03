@@ -18,10 +18,15 @@ namespace ByteArrayTestProject
 
             // 初期値クリア
             ba = new ByteArray().Expand(5);
-            Assert.AreEqual(5, ba.Length());
-            Assert.AreEqual("0000000000", ba.to_hex());
-            ba = new ByteArray().Expand(4, 0xff);
-            Assert.AreEqual("FFFFFFFF", ba.to_hex());
+            Assert.AreEqual("0000000000", ba.to_hex());     // Expand()はゼロ埋め
+            ba = new ByteArray().Expand(4).Fill();
+            Assert.AreEqual("FFFFFFFF", ba.to_hex());       // Fill() は 0xFF埋め
+            ba = new ByteArray().Expand(4).Fill(0xfe);
+            Assert.AreEqual("FEFEFEFE", ba.to_hex());       // Fill() は 埋める値を指定できる
+            ba = ba.Expand(2);
+            Assert.AreEqual("FEFEFEFE0000", ba.to_hex());   // Expand()は元のデータは変更せずに拡張する
+            ba = ba.Expand(1,0xaa);
+            Assert.AreEqual("FEFEFEFE0000AA", ba.to_hex()); // Expand()も拡張部分を埋める値を指定できる
 
             // 数値コンストラクタ
             ba = new ByteArray((Byte)12);

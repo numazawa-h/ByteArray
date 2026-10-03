@@ -156,15 +156,15 @@ namespace NCommonUtility
         public ByteArray Expand(int size, byte fill_value=0)
         {
             byte[] buf = new byte[_dat.Length + size];
+            Buffer.BlockCopy(_dat, 0, buf, 0, _dat.Length);
             if (fill_value != 0)
             {
                 // .NET FrameworkではArray.Fillを使えないのでループで対応
-                for (int i = 0; i < size; i++)
+                for (int i = 0, ofs = _dat.Length; i < size; i++, ofs++)
                 {
-                    buf[i] = fill_value;
+                    buf[ofs] = fill_value;
                 }
             }
-            Buffer.BlockCopy(_dat, 0, buf, 0, _dat.Length);
             _dat = buf;
             return this;
         }
