@@ -108,6 +108,31 @@ namespace NCommonUtility
             return this;
         }
 
+        /// <summary>
+        /// 末尾にデータを追加する
+        /// </summary>
+        /// <param name="other">追加するデータ</param>
+        /// <returns>更新後のthis</returns>
+        public ByteArray Append(string other)
+        {
+            Append(new ByteArray(other));
+            return this;
+        }
+        public ByteArray Append(ByteArray other)
+        {
+            Append(other._dat);
+            return this;
+        }
+        public ByteArray Append(byte[] other)
+        {
+            byte[] buf = new byte[_dat.Length + other.Length];
+            Buffer.BlockCopy(_dat, 0, buf, 0, _dat.Length);
+            Buffer.BlockCopy(other, 0, buf, _dat.Length, other.Length);
+            _dat = buf;
+            return this;
+        }
+
+
         public void Clear()
         {
             Fill(0);
@@ -173,30 +198,6 @@ namespace NCommonUtility
             }
             Buffer.BlockCopy(_dat, src_ofs, dst, dst_ofs, cnt);
             return new ByteArray(dst);
-        }
-
-        /// <summary>
-        /// 末尾にデータを追加する
-        /// </summary>
-        /// <param name="other">追加するデータ</param>
-        /// <returns>更新後のthis</returns>
-        public ByteArray Append(string other)
-        {
-            Append(new ByteArray(other));
-            return this;
-        }
-        public ByteArray Append(ByteArray other)
-        {
-            Append(other._dat);
-            return this;
-        }
-        public ByteArray Append(byte[] other)
-        {
-            byte[] buf = new byte[_dat.Length + other.Length];
-            Buffer.BlockCopy(_dat, 0, buf, 0, _dat.Length);
-            Buffer.BlockCopy(other, 0, buf, _dat.Length, other.Length);
-            _dat = buf;
-            return this;
         }
 
         /// <summary>
