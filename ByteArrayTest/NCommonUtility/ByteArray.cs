@@ -86,6 +86,28 @@ namespace NCommonUtility
             return new ByteArray(dst);
         }
 
+        /// <summary>
+        /// データの拡張
+        /// </summary>
+        /// <param name="size">拡張するバイト数</param>
+        /// <param name="fill_value">拡張した部分を埋める値</param>
+        /// <returns>更新後のthis</returns>
+        public ByteArray Expand(int size, byte fill_value = 0)
+        {
+            byte[] buf = new byte[_dat.Length + size];
+            Buffer.BlockCopy(_dat, 0, buf, 0, _dat.Length);
+            if (fill_value != 0)
+            {
+                // .NET FrameworkではArray.Fillを使えないのでループで対応
+                for (int i = 0, ofs = _dat.Length; i < size; i++, ofs++)
+                {
+                    buf[ofs] = fill_value;
+                }
+            }
+            _dat = buf;
+            return this;
+        }
+
         public void Clear()
         {
             Fill(0);
@@ -151,28 +173,6 @@ namespace NCommonUtility
             }
             Buffer.BlockCopy(_dat, src_ofs, dst, dst_ofs, cnt);
             return new ByteArray(dst);
-        }
-
-        /// <summary>
-        /// データの拡張
-        /// </summary>
-        /// <param name="size">拡張するバイト数</param>
-        /// <param name="fill_value">拡張した部分を埋める値</param>
-        /// <returns>更新後のthis</returns>
-        public ByteArray Expand(int size, byte fill_value=0)
-        {
-            byte[] buf = new byte[_dat.Length + size];
-            Buffer.BlockCopy(_dat, 0, buf, 0, _dat.Length);
-            if (fill_value != 0)
-            {
-                // .NET FrameworkではArray.Fillを使えないのでループで対応
-                for (int i = 0, ofs = _dat.Length; i < size; i++, ofs++)
-                {
-                    buf[ofs] = fill_value;
-                }
-            }
-            _dat = buf;
-            return this;
         }
 
         /// <summary>
