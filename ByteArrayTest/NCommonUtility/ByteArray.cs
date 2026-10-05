@@ -223,48 +223,53 @@ namespace NCommonUtility
 
         public ByteArray Take(int ofs, int cnt)
         {
-            // cnt が 0なら末尾までが対象
-            if (cnt == 0)
+            int src_ofs = 0;    // データ取得のオフセット
+            int len;            // データ長
+            (src_ofs, len) = analyzeRange(ofs,cnt);
+            if (len == 0)
             {
-                cnt = _dat.Length - ofs;
-                // ofs が末尾以降なら 0バイト
-                if ( cnt <= 0)
+                return new ByteArray();
+            }
+
+            // 出力用dst[]の cntを算出
+            int dst_ofs = 0;    // 出力用dst[]のオフセット(左ゼロ詰めの時)
+            if (cnt < 0)
+            {
+                // マイナスなら cnt の絶対値が cnt
+                cnt = -cnt;
+                // データ長が小さければ左ゼロ詰め(データ長がcntより大きくなることはない)
+                dst_ofs = cnt - len;
+            }
+            else
+            {
+                // cnt がゼロなら末尾までが対象
+                if (cnt == 0)
                 {
-                    return new ByteArray();
+                    if (ofs < 0)
+                    {
+                        // ofs がマイナスなら末尾からの相対なので絶対値がそのまま cnt
+                        cnt = -ofs;
+                    }
+                    else
+                    {
+                        // マイナスでなければ ofs から末尾までが cnt
+                        cnt = _dat.Length - ofs;
+                    }
                 }
             }
 
-            int src_ofs = ofs;
-            int dst_ofs = 0;
-
-            // cnt がマイナスなら起点を終点にする
-            if (cnt < 0)
+            // 末尾からの相対でデータ長が足りなければ左ゼロ詰め
+            if (ofs < 0)
             {
-                if (src_ofs <= 0)
+                ofs = -ofs;
+                if( ofs > _dat.Length)
                 {
-                    // src_ofsもマイナスなら起点を末尾から src_ofs分ずらした位置にする
-                    src_ofs = _dat.Length + src_ofs;
+                    dst_ofs = ofs - _dat.Length;
                 }
-                // 起点を終点にする(起点をcnt分前にずらす)
-                cnt = -cnt;
-                src_ofs = src_ofs - cnt;
             }
 
             byte[] dst = new byte[cnt];
-
-            // 起点がマイナスなら先頭ゼロ埋め
-            if (src_ofs < 0)
-            {
-                dst_ofs = -src_ofs;
-                src_ofs = 0;
-                cnt -= dst_ofs;
-            }
-            // コピーする長さが元のデータを超えていたら元のデータ長にあわせる
-            if ((src_ofs+cnt) > _dat.Length)
-            {
-                cnt = _dat.Length - src_ofs;
-            }
-            Buffer.BlockCopy(_dat, src_ofs, dst, dst_ofs, cnt);
+            Buffer.BlockCopy(_dat, src_ofs, dst, dst_ofs, len);
             return new ByteArray(dst);
         }
 
