@@ -122,6 +122,24 @@ namespace ByteArrayTestProject
             Assert.AreEqual("0000000000000000", ba.to_hex());   // Fill(0) と同じ
             ba.Fill();
             Assert.AreEqual("FFFFFFFFFFFFFFFF", ba.to_hex());   // defaultは 0xFF
+            ba.Fill(0x12, 4, 2);
+            Assert.AreEqual("FFFFFFFF1212FFFF", ba.to_hex());   // オフセットと長さ指定
+            ba.Fill(0x12, 4 );
+            Assert.AreEqual("FFFFFFFF12121212", ba.to_hex());   // 長さを省略(0になる)したら末尾まで
+            ba.Fill(0xaa, 0,-3);
+            Assert.AreEqual("FFFFFFFF12AAAAAA", ba.to_hex());   // オフセット0で長さががマイナスなら末尾
+            ba.Fill(0xaa, 3,-2);
+            Assert.AreEqual("FFAAAAFF12AAAAAA", ba.to_hex());   // オフセットプラスで長さマイナスならオフセットより前の部分が対象
+            ba.Fill(0x00,10,-3);
+            Assert.AreEqual("FFAAAAFF12AAAA00", ba.to_hex());   // 範囲外は無視(エラーにはしない)
+            ba.Fill(0x00,-4, 2);
+            Assert.AreEqual("FFAAAAFF0000AA00", ba.to_hex());   // オフセットがマイナスなら末尾起点
+            ba.Fill(0xBB,-2);
+            Assert.AreEqual("FFAAAAFF0000BBBB", ba.to_hex());   // 長さを省略(0になる)したら末尾まで
+            ba.Fill(0xFF,-3, 5);
+            Assert.AreEqual("FFAAAAFF00FFFFFF", ba.to_hex());   // 範囲外は無視
+            ba.Fill(0xDD, 8, 3);
+            Assert.AreEqual("FFAAAAFF00FFFFFF", ba.to_hex());   // 全て範囲外なら変化なし(エラーにはしない)
 
             // Take()
             ba = ByteArray.ParseHex("1234567890abcdef");

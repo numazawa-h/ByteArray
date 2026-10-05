@@ -133,16 +133,84 @@ namespace NCommonUtility
         }
 
 
+        /// <summary>
+        /// 対象範囲の分析
+        /// </summary>
+        /// <remarks>
+        /// マイナスの引数や_datの長さを考慮して_datの対象範囲を返却する。
+        /// </remarks>
+        /// <param name="ofs">オフセット(マイナスなら末尾起点、ゼロでも長さがマイナスなら末尾起点)</param>
+        /// <param name="len">長さ(マイナスなら ofsより前、ゼロなら末尾まで)</param>
+        /// <returns>_datの対象範囲を(オフセット, 長さ)で返却</returns>
+        private (int, int) analyzeRange(int ofs, int len)
+        {
+            // ofs がマイナスなら末尾からの位置に補正しておく
+            if (ofs < 0)
+            {
+                ofs += _dat.Length;
+            }
+            // len が 0なら末尾までが対象
+            if (len == 0)
+            {
+                len = _dat.Length - ofs;
+            }
+            // len がマイナスなら起点を終点にする(起点をcnt分前にずらす)
+            if (len < 0)
+            {
+                // ofs がゼロなら末尾からの位置に補正しておく
+                if (ofs == 0)
+                {
+                    ofs = _dat.Length;
+                }
+                len = -len;
+                ofs = ofs - len;
+            }
+            // ofs がマイナスならゼロにして、 len を補正する
+            if (ofs < 0)
+            {
+                len += ofs;
+                ofs = 0;
+                // 補正後の len がマイナスならゼロにする
+                if (len < 0)
+                {
+                    len = 0;
+                }
+            }
+            // 起点がデータ長を超えていたら補正する
+            if (ofs > _dat.Length)
+            {
+                ofs = _dat.Length;
+                len = 0;
+            }
+            // 終点がデータ長を超えていたら補正する
+            if ((ofs + len) > _dat.Length)
+            {
+                len = _dat.Length - ofs;
+            }
+
+            return (ofs, len);
+        }
+
         public void Clear()
         {
             Fill(0);
         }
 
-        public ByteArray Fill(byte data = 0xff)
+        /// <summary>
+        /// 特定の値で埋める
+        /// </summary>
+        /// <param name="val">埋める値</param>
+        /// <param name="ofs">開始位置(マイナスの時は末尾からのオフセット)</param>
+        /// <param name="len">長さ(ゼロの時は末尾までが対象)</param>
+        /// <returns></returns>
+        public ByteArray Fill(byte val = 0xff, int ofs = 0, int len = 0)
         {
-            for (int idx = 0; idx < _dat.Length; idx++)
+            (ofs,len) = analyzeRange(ofs,len);
+
+            // .NET FrameworkではArray.Fillを使えないのでループで対応
+            for (int idx = ofs; len >0; idx++, len--)
             {
-                _dat[idx] = data;
+                _dat[idx] = val;
             }
 
             return this;
