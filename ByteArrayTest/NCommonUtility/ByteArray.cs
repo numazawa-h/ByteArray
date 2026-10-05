@@ -74,6 +74,18 @@ namespace NCommonUtility
             _dat = enc.GetBytes(text);
         }
 
+        public int Length()
+        {
+            return _dat.Length;
+        }
+
+        public ByteArray Clone()
+        {
+            Byte[] dst = new Byte[_dat.Length];
+            Buffer.BlockCopy(_dat, 0, dst, 0, _dat.Length);
+            return new ByteArray(dst);
+        }
+
         public void Clear()
         {
             Fill(0);
@@ -87,18 +99,6 @@ namespace NCommonUtility
             }
 
             return this;
-        }
-
-        public int Length()
-        {
-            return _dat.Length;
-        }
-
-        public ByteArray Clone()
-        {
-            Byte[] dst = new Byte[_dat.Length];
-            Buffer.BlockCopy(_dat, 0, dst, 0, _dat.Length);
-            return new ByteArray(dst);
         }
 
         public ByteArray Take(int cnt = 1)
