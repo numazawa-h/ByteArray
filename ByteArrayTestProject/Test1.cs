@@ -62,16 +62,73 @@ namespace ByteArrayTestProject
             Assert.AreEqual("", ba.to_hex());               // null なら 0バイト
 
             // Copy()
-            ByteArray ba00 = new ByteArray().Expand(5, 0xff);
-            ByteArray ba01 = new ByteArray().Expand(2, 0x11);
-            ba00.Copy(ba01, 5);         // コピー先オフセットが自身データを超えていれば更新なし
-            Assert.AreEqual("FFFFFFFFFF", ba00.to_hex());
-            ba00.Copy(ba01, 1);         // コピー先オフセットのみ指定なら、元データ全体をコピーする
-            Assert.AreEqual("FF1111FFFF", ba00.to_hex());
-            ba00.Copy(ba01, 4, 2);      // コピー先オフセット+コピー長が自身データを超えていれば、自身データの長さまでをコピーする
-            Assert.AreEqual("FF1111FF11", ba00.to_hex());
-            ba00.Copy(ba01, 0, 3);      // コピー長が元データより長ければ、足りない部分を0x00埋め
-            Assert.AreEqual("111100FF11", ba00.to_hex());
+            ba = new ByteArray().Expand(5);
+            ByteArray ba01 = new ByteArray().Expand(2).Fill(0x11);
+            ba.Fill().Copy(null as byte[]);  // 元データがなければ更新なし
+            Assert.AreEqual("FFFFFFFFFF", ba.to_hex());
+            ba.Fill().Copy(new ByteArray()); // 元データがなければ更新なし
+            Assert.AreEqual("FFFFFFFFFF", ba.to_hex());
+            ba.Fill().Copy(ba01);           // 元データを先頭にコピー
+            Assert.AreEqual("1111FFFFFF", ba.to_hex());
+            ba.Fill().Copy(ba01, 1);        // オフセット指定
+            Assert.AreEqual("FF1111FFFF", ba.to_hex());
+            ba.Fill().Copy(ba01, 5);        // オフセットが自身データを超えていれば更新なし
+            Assert.AreEqual("FFFFFFFFFF", ba.to_hex());
+
+            ba.Fill().Copy(ba01, 1, 2);     // データ長指定(元データ長と同じなら指定しなくても同じ結果になる)
+            Assert.AreEqual("FF1111FFFF", ba.to_hex());
+            ba.Fill().Copy(ba01, 0, 3);     // データ長が元データより長ければ、足りない部分を0x00埋め
+            Assert.AreEqual("111100FFFF", ba.to_hex());
+            ba.Fill().Copy(ba01, 2, 3);     // データ長が元データより長ければ、足りない部分を0x00埋め
+            Assert.AreEqual("FFFF111100", ba.to_hex());
+            ba.Fill().Copy(ba01, 3, 3);     // 自身データを超えた部分は無視
+            Assert.AreEqual("FFFFFF1111", ba.to_hex());
+            ba.Fill().Copy(ba01, 4, 3);     // 自身データを超えた部分は無視
+            Assert.AreEqual("FFFFFFFF11", ba.to_hex());
+            ba.Fill().Copy(ba01, 5, 3);     // コピーすべきデータがなければ更新なし
+            Assert.AreEqual("FFFFFFFFFF", ba.to_hex());
+
+            ba.Fill().Copy(ba01, 5, -2);    // データ長がマイナスならオフセットより前が対象
+            Assert.AreEqual("FFFFFF1111", ba.to_hex());
+            ba.Fill().Copy(ba01, 4, -2);    // データ長がマイナスならオフセットより前が対象
+            Assert.AreEqual("FFFF1111FF", ba.to_hex());
+            ba.Fill().Copy(ba01, 3, -2);    // データ長がマイナスならオフセットより前が対象
+            Assert.AreEqual("FF1111FFFF", ba.to_hex());
+            ba.Fill().Copy(ba01, 2, -2);    // データ長がマイナスならオフセットより前が対象
+            Assert.AreEqual("1111FFFFFF", ba.to_hex());
+            ba.Fill().Copy(ba01, 1, -2);    // データ長がマイナスならオフセットより前が対象
+            Assert.AreEqual("11FFFFFFFF", ba.to_hex());
+            ba.Fill().Copy(ba01, 0, -2);    // ★オフセットがゼロでデータ長がマイナスなら末尾からの相対
+            Assert.AreEqual("FFFFFF1111", ba.to_hex());
+
+            ba.Fill().Copy(ba01, 5, -3);    // データ長がマイナスの時、元データより長ければ右寄せ
+            Assert.AreEqual("FFFF001111", ba.to_hex());
+            ba.Fill().Copy(ba01, 6, -3);    // データ長がマイナスの時、元データより長ければ右寄せ
+            Assert.AreEqual("FFFFFF0011", ba.to_hex());
+            ba.Fill().Copy(ba01, 7, -3);    // データ長がマイナスの時、元データより長ければ右寄せ
+            Assert.AreEqual("FFFFFFFF00", ba.to_hex());
+            ba.Fill().Copy(ba01, 8, -3);    // コピーすべきデータがなければ更新なし
+            Assert.AreEqual("FFFFFFFFFF", ba.to_hex());
+
+            ba.Fill().Copy(ba01, -2);       // オフセットがマイナスなら末尾からの相対
+            Assert.AreEqual("FFFFFF1111", ba.to_hex());
+            ba.Fill().Copy(ba01, -3, 3);    // データ長が元データより長ければ、左寄せ
+            Assert.AreEqual("FFFF111100", ba.to_hex());
+
+            ba.Fill().Copy(ba01, -1, -2);   // 両方がマイナスなら末尾相対のオフセットよりさらに前が対象
+            Assert.AreEqual("FFFF1111FF", ba.to_hex());
+            ba.Fill().Copy(ba01, -1, -3);   // データ長が元データより長ければ、右寄せ
+            Assert.AreEqual("FF001111FF", ba.to_hex());
+
+            ByteArray ba02 = ByteArray.ParseHex("1234");
+            ba.Fill().Copy(ba02,-6, 3);     // 末尾相対が先頭より前ならはみ出る部分は無視
+            Assert.AreEqual("3400FFFFFF", ba.to_hex());
+            ba.Fill().Copy(ba02,-3,-3);     // 末尾相対とデータ長マイナスで先頭より前ならはみ出る部分は無視
+            Assert.AreEqual("1234FFFFFF", ba.to_hex());
+            ba.Fill().Copy(ba02,-5,-2);     // 末尾相対とデータ長マイナスでコピーすべきデータがなければ更新なし
+            Assert.AreEqual("FFFFFFFFFF", ba.to_hex());
+
+
 
             // ParseHex()
             ByteArray ba1 = ByteArray.ParseHex("[ 1234 5678 9ABC def0 ]");  // 16進文字([0-9,a-f,A-F])以外は無視する

@@ -278,39 +278,102 @@ namespace NCommonUtility
         /// </summary>
         /// <param name="other">コピー元データ</param>
         /// <param name="ofs">コピー先位置（自身データのオフセット）</param>
-        /// <param name="len">コピーする長さ</param>
+        /// <param name="len">データ長</param>
         /// <returns>更新後のthis</returns>
         public ByteArray Copy(ByteArray other, int ofs = 0, int len = 0)
         {
-            if(ofs >= _dat.Length)
+            return Copy(other._dat, ofs, len);
+        }
+        public ByteArray Copy(byte[] other, int ofs = 0, int len = 0)
+        {
+            if (other == null || other.Length == 0)
             {
-                // コピー先位置が自身データを超えていれば更新なし
+                // コピー元データがなければ更新なし
+                return this;
+            }
+            if (len == 0)
+            {
+                // データ長の指定がなければコピー元データ長
+                len = other.Length;
+            }
+
+            int dst_ofs;
+            int cnt = len;      // 元のデータ長を覚えておく(ゼロ埋めや右寄せ処理に使う)
+            (dst_ofs, len) = analyzeRange(ofs, len);
+            if (len == 0)
+            {
+                // コピー先の対象範囲がなければ更新なし
                 return this;
             }
 
-            if (len == 0)
+            // 末端相対指定で自データ長を超える場合、コピー元のオフセットで調整
+            int src_ofs = 0;
+            if (ofs < 0)
             {
-                // コピーする長さが指定されなければ、コピー元データ全体をコピーする
-                len = other.Length();
-            }
-            if((ofs + len) > _dat.Length)
-            {
-                // コピーする長さが自身データを超えていれば、自身データの長さまでをコピーする
-                len = _dat.Length - ofs;
+                if (cnt < 0)
+                {
+                    // cnt がマイナスなら ofs よりさらに右が開始位置
+                    ofs += cnt;
+                }
+                ofs = -ofs;
+                if (ofs > _dat.Length)
+                {
+                    src_ofs = ofs - _dat.Length;
+                }
             }
 
-            if (len > other.Length())
+            // 指定された長さがマイナスなら絶対値にして右寄せ
+            bool right_align = false;
+            if (cnt < 0)
             {
-                // コピーする長さがコピー元データを超えていれば、足りない部分を0x00で埋めてからコピー
-                ByteArray ba = new ByteArray().Expand(len);
-                Buffer.BlockCopy(other._dat, 0, ba._dat, 0, other.Length());
-                Buffer.BlockCopy(ba._dat, 0, _dat, ofs, len);
+                cnt = -cnt;
+                right_align = true;
+            }
+
+            byte[] src;
+            if (cnt == other.Length)
+            {
+                // 指定された長さがコピー元データ長と同じならコピー元をそのままコピー
+                src = other;
             }
             else
             {
-                // 通常コピー
-                Buffer.BlockCopy(other._dat, 0, _dat, ofs, len);
+                src = new byte[cnt];
+                if (cnt > other.Length)
+                {
+                    if (right_align)
+                    {
+                        // 指定された長さがコピー元データより長ければ、右寄せ
+                        Buffer.BlockCopy(other, 0, src, cnt - other.Length, other.Length);
+                    }
+                    else
+                    {
+                        // 指定された長さがコピー元データより長ければ、左寄せ
+                        Buffer.BlockCopy(other, 0, src, 0, other.Length);
+                    }
+                }
+                else
+                {
+                    if (right_align)
+                    {
+                        // 指定された長さがコピー元データより短ければ、右端取得
+                        Buffer.BlockCopy(other, cnt - other.Length, src, 0, cnt);
+                    }
+                    else
+                    {
+                        // 指定された長さがコピー元データより短ければ、左端取得
+                        Buffer.BlockCopy(other, 0, src, 0, cnt);
+                    }
+                }
             }
+
+
+            // コピーすべきデータがあればコピーする
+            if(src_ofs < src.Length)
+            {
+                Buffer.BlockCopy(src, src_ofs, _dat, dst_ofs, len);
+            }
+
             return this;
         }
 
