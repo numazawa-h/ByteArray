@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -165,16 +166,8 @@ namespace NCommonUtility
         /// </summary>
         /// <param name="other">追加するデータ</param>
         /// <returns>更新後のthis</returns>
-        public ByteArray Append(string other)
-        {
-            Append(new ByteArray(other));
-            return this;
-        }
-        public ByteArray Append(ByteArray other)
-        {
-            Append(other._dat);
-            return this;
-        }
+        public ByteArray Append(string other) => Append(new ByteArray(other));
+        public ByteArray Append(ByteArray other) => Append(other._dat);
         public ByteArray Append(byte[] other)
         {
             byte[] buf = new byte[_dat.Length + other.Length];

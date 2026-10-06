@@ -143,23 +143,29 @@ namespace ByteArrayTestProject
             Assert.AreEqual("あいうえお", ba3.to_text_sjis());
 
             // Append()
-            ba1.Append(ba1).Append(ba2).Append(ba3);
+            ba = ByteArray.ParseHex("1234");
+            byte[] dat1 = new byte[] { 0x56, 0x78, };
+            string dat2 = "ab";
+            Assert.AreEqual("12345678", ba.Append(dat1).to_hex());
+            Assert.AreEqual("1234567861006200", ba.Append(dat2).to_hex());
+
+            ba.Append(ba1).Append(ba2).Append(ba3);
             Byte[] dat_append = [
-                0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0,
+                0x12, 0x34, 0x56, 0x78, 0x61, 0x00, 0x62, 0x00,
                 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0,
                 0x31, 0x32, 0x33, 0x34, 0x61, 0x62, 0x63, 0x64, 0x41, 0x42, 0x43, 0x44,
                 0x82, 0xa0, 0x82, 0xa2, 0x82, 0xa4, 0x82, 0xa6, 0x82, 0xa8,
             ]; 
-            CollectionAssert.AreEqual(dat_append, ba1.GetData());
+            CollectionAssert.AreEqual(dat_append, ba.GetData());
 
             // 文字列への変換
-            Assert.AreEqual("BC-DE-F0-12", ba1.Take(5, 4).to_hex("-"));
-            Assert.AreEqual("12345678 9ABCDEF0 12345678 9ABCDEF0", ba1.Take(0, 16).to_hex(" ", 4));
-            Assert.AreEqual("1 2 3 4 a b c d A B C D", ba1.Take(16, 12).to_text_ascii(" "));
-            Assert.AreEqual("1234,abcd,ABCD", ba1.Take(16, 12).to_text_ascii(",", 4));
-            Assert.AreEqual("1234abcd", ba1.Take(16, 8).to_text_utf8());
-            Assert.AreEqual("あいうえお", ba1.Take(28, 10).to_text_sjis());
-            Assert.AreEqual("82A082A282A482A682A8", ba1.Take(28, 10).to_hex());
+            Assert.AreEqual("00-62-00-12", ba.Take(5, 4).to_hex("-"));
+            Assert.AreEqual("12345678 61006200 12345678 9ABCDEF0", ba.Take(0, 16).to_hex(" ", 4));
+            Assert.AreEqual("1 2 3 4 a b c d A B C D", ba.Take(16, 12).to_text_ascii(" "));
+            Assert.AreEqual("1234,abcd,ABCD", ba.Take(16, 12).to_text_ascii(",", 4));
+            Assert.AreEqual("1234abcd", ba.Take(16, 8).to_text_utf8());
+            Assert.AreEqual("あいうえお", ba.Take(28, 10).to_text_sjis());
+            Assert.AreEqual("82A082A282A482A682A8", ba.Take(28, 10).to_hex());
 
             // StrToByte
             ba = ByteArray.StrToByte("0123456789abcdEF");
