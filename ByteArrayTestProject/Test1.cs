@@ -220,8 +220,19 @@ namespace ByteArrayTestProject
             Assert.AreEqual("1234567890ABCDEF", ba.Take(0).to_hex());       // Take(0)はTake(0, 0)と同じ
 
             // Shift()
+            ba = ByteArray.ParseHex("1234567890abcdef");
+            Assert.AreEqual("1234567890ABCDEF", ba.ShiftLeft(0).to_hex());    // 引数ゼロなら変化なし
+            Assert.AreEqual("34567890ABCDEF00", ba.ShiftLeft().to_hex());     // 引数なしなら1バイトシフト
+            Assert.AreEqual("7890ABCDEF000000", ba.ShiftLeft(2).to_hex());    // 2バイトシフト
+            Assert.AreEqual("0000007890ABCDEF", ba.ShiftLeft(-3).to_hex());   // マイナスなら逆方向にシフト
+            Assert.AreEqual("0000000000000000", ba.ShiftLeft(8).to_hex());    // データ長以上は全クリア
+            ba = ByteArray.ParseHex("1234567890abcdef");
+            Assert.AreEqual("1234567890ABCDEF", ba.ShiftRight(0).to_hex());   // 引数ゼロなら変化なし
+            Assert.AreEqual("001234567890ABCD", ba.ShiftRight().to_hex());    // 引数なしなら1バイトシフト
+            Assert.AreEqual("0000001234567890", ba.ShiftRight(2).to_hex());   // 2バイトシフト
+            Assert.AreEqual("1234567890000000", ba.ShiftRight(-3).to_hex());  // マイナスなら逆方向にシフト
+            Assert.AreEqual("0000000000000000", ba.ShiftRight(8).to_hex());   // データ長以上は全クリア
 
-            // Read()
         }
     }
 }

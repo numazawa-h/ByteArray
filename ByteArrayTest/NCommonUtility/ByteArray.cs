@@ -7,6 +7,10 @@ namespace NCommonUtility
 {
     public class ByteArray
     {
+        // Shift()の方向
+        public enum Direction { Left = 0, Right = ~Left }
+
+        // 保持データ
         private byte[] _dat;
 
         public ByteArray()
@@ -105,6 +109,54 @@ namespace NCommonUtility
                 }
             }
             _dat = buf;
+            return this;
+        }
+
+        public ByteArray ShiftLeft(int cnt=1) => Shift(cnt, Direction.Left);
+        public ByteArray ShiftRight(int cnt=1) => Shift(cnt, Direction.Right);
+        /// <summary>
+        /// データシフト
+        /// </summary>
+        /// <param name="cnt">シフトするバイト数(マイナスなら逆方向にシフト)</param>
+        /// <param name="direction">シフト方向</param>
+        /// <returns>シフト後の自身</returns>
+        public ByteArray Shift(int cnt, Direction direction)
+        {
+            if (cnt == 0)
+            {
+                // cntがゼロなら何もしない
+                return this;
+            }
+
+            if (cnt < 0)
+            {
+                // cntがマイナスなら指定された逆方向にシフトする
+                direction = ~direction;
+                cnt = -cnt;
+            }
+
+            if (cnt >= _dat.Length)
+            {
+                // cntがデータ長以上なら全クリア
+                Clear();
+            }
+            else
+            {
+                int copycnt = _dat.Length - cnt; 
+                if (direction == Direction.Left)
+                {
+                    // 左シフト
+                    Array.Copy(_dat, cnt, _dat, 0, copycnt);
+                    Array.Clear(_dat, copycnt, cnt);    // 末尾のcntバイトをクリア
+                }
+                else
+                {
+                    // 右シフト
+                    Array.Copy(_dat, 0, _dat, cnt, copycnt);
+                    Array.Clear(_dat, 0, cnt);      // 先頭のcntバイトをクリア
+                }
+            }
+
             return this;
         }
 
