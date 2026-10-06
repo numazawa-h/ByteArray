@@ -238,7 +238,7 @@ namespace NCommonUtility
 
         public void Clear()
         {
-            Fill(0);
+            Array.Clear(_dat, 0, _dat.Length);
         }
 
         /// <summary>
@@ -252,10 +252,17 @@ namespace NCommonUtility
         {
             (ofs,len) = analyzeRange(ofs,len);
 
-            // .NET FrameworkではArray.Fillを使えないのでループで対応
-            for (int idx = ofs; len >0; idx++, len--)
+            if(val == 0)
             {
-                _dat[idx] = val;
+                Array.Clear(_dat, ofs, len);
+            }
+            else
+            {
+                // .NET FrameworkではArray.Fillを使えないのでループで対応
+                for (int idx = ofs; len > 0; idx++, len--)
+                {
+                    _dat[idx] = val;
+                }
             }
 
             return this;
