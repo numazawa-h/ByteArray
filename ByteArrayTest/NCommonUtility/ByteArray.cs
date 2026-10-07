@@ -409,7 +409,7 @@ namespace NCommonUtility
                     if (right_align)
                     {
                         // 指定された長さがコピー元データより短ければ、右端取得
-                        Buffer.BlockCopy(other, cnt - other.Length, src, 0, cnt);
+                        Buffer.BlockCopy(other, other.Length - cnt, src, 0, cnt);
                     }
                     else
                     {

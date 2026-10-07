@@ -119,6 +119,8 @@ namespace ByteArrayTestProject
             Assert.AreEqual("FFFF1111FF", ba.to_hex());
             ba.Fill().Copy(ba01, -1, -3);   // データ長が元データより長ければ、右寄せ
             Assert.AreEqual("FF001111FF", ba.to_hex());
+            ba.Fill().Copy(ba01, -1, -1);   // データ長が元データより長ければ、右端
+            Assert.AreEqual("FFFFFF11FF", ba.to_hex());
 
             ByteArray ba02 = ByteArray.ParseHex("1234");
             ba.Fill().Copy(ba02,-6, 3);     // 末尾相対が先頭より前ならはみ出る部分は無視
