@@ -25,7 +25,7 @@ namespace ByteArrayTestProject
             Assert.AreEqual("FEFEFEFE", ba.to_hex());       // Fill() は 埋める値を指定できる
             ba = ba.Expand(2);
             Assert.AreEqual("FEFEFEFE0000", ba.to_hex());   // Expand()は元のデータは変更せずに拡張する
-            ba = ba.Expand(1,0xaa);
+            ba = ba.Expand(1, 0xaa);
             Assert.AreEqual("FEFEFEFE0000AA", ba.to_hex()); // Expand()も拡張部分を埋める値を指定できる
 
             // 数値コンストラクタ
@@ -50,7 +50,7 @@ namespace ByteArrayTestProject
             Assert.AreEqual("313233346162636441424344", ba.to_hex());
 
             // Byte[]コンストラクタ
-            Byte[] dat = { 0x01, 0x23, 0x45, 0x67};
+            Byte[] dat = { 0x01, 0x23, 0x45, 0x67 };
             ba = new ByteArray(dat);
             Assert.AreEqual("01234567", ba.to_hex());
             dat[1] = 0xfe;
@@ -123,11 +123,11 @@ namespace ByteArrayTestProject
             Assert.AreEqual("FFFFFF11FF", ba.to_hex());
 
             ByteArray ba02 = ByteArray.ParseHex("1234");
-            ba.Fill().Copy(ba02,-6, 3);     // 末尾相対が先頭より前ならはみ出る部分は無視
+            ba.Fill().Copy(ba02, -6, 3);     // 末尾相対が先頭より前ならはみ出る部分は無視
             Assert.AreEqual("3400FFFFFF", ba.to_hex());
-            ba.Fill().Copy(ba02,-3,-3);     // 末尾相対とデータ長マイナスで先頭より前ならはみ出る部分は無視
+            ba.Fill().Copy(ba02, -3, -3);     // 末尾相対とデータ長マイナスで先頭より前ならはみ出る部分は無視
             Assert.AreEqual("1234FFFFFF", ba.to_hex());
-            ba.Fill().Copy(ba02,-5,-2);     // 末尾相対とデータ長マイナスでコピーすべきデータがなければ更新なし
+            ba.Fill().Copy(ba02, -5, -2);     // 末尾相対とデータ長マイナスでコピーすべきデータがなければ更新なし
             Assert.AreEqual("FFFFFFFFFF", ba.to_hex());
 
 
@@ -157,7 +157,7 @@ namespace ByteArrayTestProject
                 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0,
                 0x31, 0x32, 0x33, 0x34, 0x61, 0x62, 0x63, 0x64, 0x41, 0x42, 0x43, 0x44,
                 0x82, 0xa0, 0x82, 0xa2, 0x82, 0xa4, 0x82, 0xa6, 0x82, 0xa8,
-            ]; 
+            ];
             CollectionAssert.AreEqual(dat_append, ba.GetData());
 
             // 文字列への変換
@@ -189,19 +189,19 @@ namespace ByteArrayTestProject
             Assert.AreEqual("FFFFFFFFFFFFFFFF", ba.to_hex());   // defaultは 0xFF
             ba.Fill(0x12, 4, 2);
             Assert.AreEqual("FFFFFFFF1212FFFF", ba.to_hex());   // オフセットと長さ指定
-            ba.Fill(0x12, 4 );
+            ba.Fill(0x12, 4);
             Assert.AreEqual("FFFFFFFF12121212", ba.to_hex());   // 長さを省略(0になる)したら末尾まで
-            ba.Fill(0xaa, 0,-3);
+            ba.Fill(0xaa, 0, -3);
             Assert.AreEqual("FFFFFFFF12AAAAAA", ba.to_hex());   // オフセット0で長さががマイナスなら末尾
-            ba.Fill(0xaa, 3,-2);
+            ba.Fill(0xaa, 3, -2);
             Assert.AreEqual("FFAAAAFF12AAAAAA", ba.to_hex());   // オフセットプラスで長さマイナスならオフセットより前の部分が対象
-            ba.Fill(0x00,10,-3);
+            ba.Fill(0x00, 10, -3);
             Assert.AreEqual("FFAAAAFF12AAAA00", ba.to_hex());   // 範囲外は無視(エラーにはしない)
-            ba.Fill(0x00,-4, 2);
+            ba.Fill(0x00, -4, 2);
             Assert.AreEqual("FFAAAAFF0000AA00", ba.to_hex());   // オフセットがマイナスなら末尾起点
-            ba.Fill(0xBB,-2);
+            ba.Fill(0xBB, -2);
             Assert.AreEqual("FFAAAAFF0000BBBB", ba.to_hex());   // 長さを省略(0になる)したら末尾まで
-            ba.Fill(0xFF,-3, 5);
+            ba.Fill(0xFF, -3, 5);
             Assert.AreEqual("FFAAAAFF00FFFFFF", ba.to_hex());   // 範囲外は無視
             ba.Fill(0xDD, 8, 3);
             Assert.AreEqual("FFAAAAFF00FFFFFF", ba.to_hex());   // 全て範囲外なら変化なし(エラーにはしない)
@@ -213,13 +213,13 @@ namespace ByteArrayTestProject
             Assert.AreEqual("1234567890ABCDEF0000", ba.Take(10).to_hex());  // 長さが元データより長ければゼロ埋め
             Assert.AreEqual("CDEF", ba.Take(-2).to_hex());          // マイナスなら末尾バイト取得
             Assert.AreEqual("00001234567890ABCDEF", ba.Take(-10).to_hex()); // 長さが元データより長ければゼロ埋め
-            Assert.AreEqual("567890ABCD", ba.Take( 2, 5).to_hex()); // Take(ofs, len)でオフセットと長さ指定
-            Assert.AreEqual("7890",       ba.Take( 5,-2).to_hex()); // 長さがマイナスなら、オフセットより前の部分を取得
-            Assert.AreEqual("0000001234", ba.Take( 2,-5).to_hex()); // 長さが元データより長ければゼロ埋め
-            Assert.AreEqual("ABCDEF0000", ba.Take( 5, 5).to_hex()); // 長さが元データより長ければゼロ埋め
-            Assert.AreEqual("7890ABCDEF", ba.Take( 0,-5).to_hex()); // 長さがマイナスでオフセットが 0なら、末尾バイト取得
-            Assert.AreEqual("ABCD",       ba.Take(-3, 2).to_hex()); // オフセットがマイナスなら、末尾からの相対
-            Assert.AreEqual("34567890AB", ba.Take(-2,-5).to_hex()); // 両方マイナスなら、末尾2バイトより前の5バイトを取得
+            Assert.AreEqual("567890ABCD", ba.Take(2, 5).to_hex()); // Take(ofs, len)でオフセットと長さ指定
+            Assert.AreEqual("7890", ba.Take(5, -2).to_hex()); // 長さがマイナスなら、オフセットより前の部分を取得
+            Assert.AreEqual("0000001234", ba.Take(2, -5).to_hex()); // 長さが元データより長ければゼロ埋め
+            Assert.AreEqual("ABCDEF0000", ba.Take(5, 5).to_hex()); // 長さが元データより長ければゼロ埋め
+            Assert.AreEqual("7890ABCDEF", ba.Take(0, -5).to_hex()); // 長さがマイナスでオフセットが 0なら、末尾バイト取得
+            Assert.AreEqual("ABCD", ba.Take(-3, 2).to_hex()); // オフセットがマイナスなら、末尾からの相対
+            Assert.AreEqual("34567890AB", ba.Take(-2, -5).to_hex()); // 両方マイナスなら、末尾2バイトより前の5バイトを取得
             Assert.AreEqual("90ABCDEF", ba.Take(4, 0).to_hex());            // 長さが 0なら末尾までが対象
             Assert.AreEqual("001234567890ABCDEF", ba.Take(-9, 0).to_hex()); // オフセットがマイナスなら末尾からの相対
             Assert.AreEqual("001234567890ABCDEF00", ba.Take(-9, 10).to_hex()); // 左右ゼロ埋め
@@ -241,6 +241,84 @@ namespace ByteArrayTestProject
             Assert.AreEqual("1234567890000000", ba.ShiftRight(-3).to_hex());  // マイナスなら逆方向にシフト
             Assert.AreEqual("0000000000000000", ba.ShiftRight(8).to_hex());   // データ長以上は全クリア
 
+            // HalfShift()
+            ba = ByteArray.ParseHex("1234567890abcdef");
+            Assert.AreEqual("234567890ABCDEF0", ba.HalfShiftLeft().to_hex());  // 左4ビットシフト
+            Assert.AreEqual("0234567890ABCDEF", ba.HalfShiftRight().to_hex()); // 右4ビットシフト
+        }
+
+        [TestMethod]
+        public void TestMethod2()
+        {
+            ByteArray ba;
+            ba = ByteArray.Bcd(3).Pack(123);            // Bcd()で10進桁数指定。Pack()で二進化十進に変換
+            Assert.AreEqual("0123", ba.to_hex());       // 奇数桁を指定すると先頭4ビットがゼロになる
+            ba = ByteArray.Bcd(4).Pack(123);
+            Assert.AreEqual("0123", ba.to_hex());       // データの中身は上と同じだがZone()やSigned()の結果が違ってくる
+            ba = ByteArray.Bcd(8).Pack(12345678);
+            Assert.AreEqual("12345678", ba.to_hex());
+            ba = ByteArray.Bcd(8).Pack(87654321);
+            Assert.AreEqual("87654321", ba.to_hex());
+            ba = ByteArray.Bcd(8).Pack(123);
+            Assert.AreEqual("00000123", ba.to_hex());
+            ba = ByteArray.Bcd(16).Pack(1234567812345678);
+            Assert.AreEqual("1234567812345678", ba.to_hex());
+            ba = ByteArray.Bcd(16).Pack(9999999999999999);
+            Assert.AreEqual("9999999999999999", ba.to_hex());
+
+            ba = ByteArray.Bcd(3).Pack(123).Signed();
+            Assert.AreEqual("123C", ba.to_hex());           // Signed()でプラス識別 0xC を追加
+            ba = ByteArray.Bcd(4).Pack(123).Signed();
+            Assert.AreEqual("00123C", ba.to_hex());         // 4桁だと奇数になるので先頭4ビットがゼロになる
+            ba = ByteArray.Bcd(3).Pack(-123).Signed();
+            Assert.AreEqual("123D", ba.to_hex());           // マイナス識別 0xD を追加
+            ba = ByteArray.Bcd(4).Pack(-123).Signed();
+
+            ba = ByteArray.Bcd(3).Pack(-123).Zone();
+            Assert.AreEqual("313273", ba.to_hex());         // Zone()でASCII系(0x3)ゾーン(マイナスは0x7)
+            ba = ByteArray.Bcd(3).Pack(123).Zone();
+            Assert.AreEqual("313233", ba.to_hex());         // ASCII系(0x3)ゾーンでプラスは0x3 のまま
+            ba = ByteArray.Bcd(3).Pack(-123).Zone(0xf0);
+            Assert.AreEqual("F1F2D3", ba.to_hex());         // Zone()の引数でゾーンの上4ビットを指定できる(マイナスは0xD)
+            ba = ByteArray.Bcd(3).Pack(123).Zone(0xf0);
+            Assert.AreEqual("F1F2C3", ba.to_hex());         // Zone()で引数を指定したらプラスは0xC
+
+            Exception ex;
+            ex = Assert.ThrowsException<ArgumentException>(() =>
+            {
+                ba = ByteArray.Bcd(-1);                     // Bcd()の引数はマイナス不可
+            });
+            ex = Assert.ThrowsException<ArgumentException>(() =>
+            {
+                ba = ByteArray.Bcd(0);                      // Bcd()の引数はゼロも不可
+            });
+            ex = Assert.ThrowsException<ArgumentException>(() =>
+            {
+                ba = ByteArray.Bcd(17);                     // Bcd()の引数は16まで
+            });
+            ex = Assert.ThrowsException<ArgumentException>(() =>
+            {
+                ba = ByteArray.Bcd(1).Pack(10);             // Bcd()の引数で 1は指定できるが、Pack()は 9まで
+            });
+            ba = ByteArray.Bcd(4).Pack(9999);
+            ex = Assert.ThrowsException<ArgumentException>(() =>
+            {
+                ba = ByteArray.Bcd(4).Pack(10000);
+            });
+            ba = ByteArray.Bcd(8).Pack(99999999);
+            ex = Assert.ThrowsException<ArgumentException>(() =>
+            {
+                ba = ByteArray.Bcd(8).Pack(100000000);
+            });
+            ba = ByteArray.Bcd(16).Pack(9999999999999999);
+            ex = Assert.ThrowsException<ArgumentException>(() =>
+            {
+                ba = ByteArray.Bcd(16).Pack(10000000000000000);
+            });
+            ex = Assert.ThrowsException<ArgumentException>(() =>
+            {
+                ba = ByteArray.Bcd(3).Pack(123).Zone(0x12); // Zone()の引数下4ビットはゼロにしなければならない
+            });
         }
     }
 }

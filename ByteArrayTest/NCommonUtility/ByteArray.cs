@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace NCommonUtility
 {
@@ -12,7 +16,7 @@ namespace NCommonUtility
         public enum Direction { Left = 0, Right = ~Left }
 
         // 保持データ
-        private byte[] _dat;
+        protected byte[] _dat;
 
         public ByteArray()
         {
@@ -69,9 +73,9 @@ namespace NCommonUtility
         /// <summary>
         /// 指定された文字コードで文字列を変換するコンストラクター
         /// </summary>
-        public ByteArray(string text, Encoding enc=null )
+        public ByteArray(string text, Encoding enc = null)
         {
-            if(enc==null)
+            if (enc == null)
             {
                 // C#の文字列は、UTF16(リトルエンディアン)なので、デフォルトはUnicode
                 enc = Encoding.Unicode;
@@ -113,10 +117,10 @@ namespace NCommonUtility
             return this;
         }
 
-        public ByteArray ShiftLeft(int cnt=1) => Shift(cnt, Direction.Left);
-        public ByteArray ShiftRight(int cnt=1) => Shift(cnt, Direction.Right);
+        public ByteArray ShiftLeft(int cnt = 1) => Shift(cnt, Direction.Left);
+        public ByteArray ShiftRight(int cnt = 1) => Shift(cnt, Direction.Right);
         /// <summary>
-        /// データシフト
+        /// データシフト(バイト単位)
         /// </summary>
         /// <param name="cnt">シフトするバイト数(マイナスなら逆方向にシフト)</param>
         /// <param name="direction">シフト方向</param>
@@ -143,7 +147,7 @@ namespace NCommonUtility
             }
             else
             {
-                int copycnt = _dat.Length - cnt; 
+                int copycnt = _dat.Length - cnt;
                 if (direction == Direction.Left)
                 {
                     // 左シフト
@@ -155,6 +159,43 @@ namespace NCommonUtility
                     // 右シフト
                     Array.Copy(_dat, 0, _dat, cnt, copycnt);
                     Array.Clear(_dat, 0, cnt);      // 先頭のcntバイトをクリア
+                }
+            }
+
+            return this;
+        }
+
+        public ByteArray HalfShiftLeft() => HalfShift(Direction.Left);
+        public ByteArray HalfShiftRight() => HalfShift(Direction.Right);
+        /// <summary>
+        /// データシフト(4ビット単位)
+        /// </summary>
+        /// <param name="direction">シフト方向</param>
+        /// <returns>シフト後の自身</returns>
+        public ByteArray HalfShift(Direction direction)
+        {
+            if ((direction == Direction.Left))
+            {
+                for (int i = 0; i < _dat.Length; i++)
+                {
+                    int carry = 0;
+                    if (i + 1 < _dat.Length)
+                    {
+                        carry = _dat[i + 1] >> 4;
+                    }
+                    _dat[i] = (byte)(_dat[i] << 4 | carry);
+                }
+            }
+            else
+            {
+                for (int i = _dat.Length - 1; i >= 0; i--)
+                {
+                    int carry = 0;
+                    if (i > 0)
+                    {
+                        carry = _dat[i - 1] << 4;
+                    }
+                    _dat[i] = (byte)(_dat[i] >> 4 | carry);
                 }
             }
 
@@ -250,9 +291,9 @@ namespace NCommonUtility
         /// <returns></returns>
         public ByteArray Fill(byte val = 0xff, int ofs = 0, int len = 0)
         {
-            (ofs,len) = analyzeRange(ofs,len);
+            (ofs, len) = analyzeRange(ofs, len);
 
-            if(val == 0)
+            if (val == 0)
             {
                 Array.Clear(_dat, ofs, len);
             }
@@ -277,7 +318,7 @@ namespace NCommonUtility
         {
             int src_ofs = 0;    // データ取得のオフセット
             int len;            // データ長
-            (src_ofs, len) = analyzeRange(ofs,cnt);
+            (src_ofs, len) = analyzeRange(ofs, cnt);
             if (len == 0)
             {
                 return new ByteArray();
@@ -314,7 +355,7 @@ namespace NCommonUtility
             if (ofs < 0)
             {
                 ofs = -ofs;
-                if( ofs > _dat.Length)
+                if (ofs > _dat.Length)
                 {
                     dst_ofs = ofs - _dat.Length;
                 }
@@ -421,7 +462,7 @@ namespace NCommonUtility
 
 
             // コピーすべきデータがあればコピーする
-            if(src_ofs < src.Length)
+            if (src_ofs < src.Length)
             {
                 Buffer.BlockCopy(src, src_ofs, _dat, dst_ofs, len);
             }
@@ -441,8 +482,8 @@ namespace NCommonUtility
             return buf;
         }
 
-        public override string ToString() 
-        { 
+        public override string ToString()
+        {
             return to_hex();
         }
 
@@ -514,7 +555,7 @@ namespace NCommonUtility
         /// <param name="sep">区切り文字(separator)</param>
         /// <param name="separate_size">区切り文字を挿入する間隔</param>
         /// <returns>16進文字列/<returns>
-        public string to_hex(string sep=null, int separate_size=1)
+        public string to_hex(string sep = null, int separate_size = 1)
         {
             StringBuilder sb = new StringBuilder();
             bool bFirst = true;
@@ -530,7 +571,7 @@ namespace NCommonUtility
                     else
                     {
                         ++separate_cnt;
-                        if(separate_cnt >= separate_size)
+                        if (separate_cnt >= separate_size)
                         {
                             sb.Append(sep);
                             separate_cnt = 0;
@@ -573,7 +614,7 @@ namespace NCommonUtility
                     }
                 }
                 byte b = _dat[i];
-                if (b < 0x20 || b>0x7e)
+                if (b < 0x20 || b > 0x7e)
                 {
                     sb.Append(".");
                 }
@@ -631,7 +672,7 @@ namespace NCommonUtility
             // 奇数文字なら後ろに"0"を追加
             if ((h.Length % 2) == 1)
             {
-                h = h +"0";
+                h = h + "0";
             }
 
             int byte_size = h.Length / 2;
@@ -658,14 +699,201 @@ namespace NCommonUtility
             }
             else
             {
-                if(str.Length>1 && str.Substring(str.Length-1)==" ")
+                if (str.Length > 1 && str.Substring(str.Length - 1) == " ")
                 {
                     // 文字列の最後がスペースなら削除する
                     // これにより例えば"abc"という文字列を指定したい時、"abc "と指定すればよい（16進データにならない）
-                    str = str.Substring(0,str.Length-1);
+                    str = str.Substring(0, str.Length - 1);
                 }
                 return new ByteArray(Encoding.ASCII.GetBytes(str));
             }
+        }
+
+        /// <summary>
+        /// 二進化十進クラスを生成する
+        /// </summary>
+        /// <param name="digits">10進桁数</param>
+        /// <returns></returns>
+        static public ByteArrayBcd Bcd(int digits)
+        {
+            return new ByteArrayBcd(digits);
+        }
+
+
+        /// <summary>
+        /// 二進化十進クラス
+        /// </summary>
+        public class ByteArrayBcd : ByteArray
+        {
+            bool _signed = false;       // マイナスの時、True
+            int _bitcnt = 0;            // 対象のビット数
+
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            /// <param name="digits">10進桁数</param>
+            /// <exception cref="ArgumentException">digits: 1から16まで</exception>
+            public ByteArrayBcd(int digits) : base()
+            {
+                if ((digits <= 0) || (digits > 16))
+                {
+                    throw new ArgumentException("The argument 'digits' is invalid");
+                }
+                _bitcnt = digits * 4;
+                int byte_len = (_bitcnt + 7) / 8;
+                base.Expand(byte_len);
+            }
+
+
+            public ByteArrayBcd Pack(int num)
+            {
+                if (num < 0)
+                {
+                    _signed = true;
+                    num = -num;
+                }
+                return Pack((UInt64)num);
+            }
+
+            public ByteArrayBcd Pack(UInt64 num)
+            {
+                if (NUM_MAX[_bitcnt / 4] < num)
+                {
+                    throw new ArgumentException("The argument 'num' is over");
+                }
+                UInt64 msk1 = (UInt64)1 << (_bitcnt - 1);
+                UInt64 bcd = 0;
+                for (int i = 0; i < _bitcnt; ++i)
+                {
+                    // 補正(全4ビットに対して「5以上なら3を足す」補正を実施する)
+                    UInt64 msk3 = 3;
+                    UInt64 msk4 = 4;
+                    UInt64 msk8 = 8;
+                    for (int j = 0; j < _bitcnt; j += 4)
+                    {
+                        if ((bcd & msk8) != 0)
+                        {
+                            bcd += msk3;
+                        }
+                        else if ((bcd & msk4) != 0)
+                        {
+                            if ((bcd & msk3) != 0)
+                            {
+                                bcd += msk3;
+                            }
+                        }
+                        msk3 <<= 4;
+                        msk4 <<= 4;
+                        msk8 <<= 4;
+                    }
+
+                    // 1 ビットシフト
+                    bcd <<= 1;
+                    if ((num & msk1) != 0)
+                    {
+                        bcd |= 1;
+                    }
+                    msk1 >>= 1;
+                }
+
+                ByteArray ba = new ByteArray(bcd);
+                Copy(ba, 0, -_dat.Length);
+                return this;
+            }
+
+            public ByteArray Zone(byte zone_prefix = 0x30)
+            {
+                if((zone_prefix & 0x0F) != 0)
+                {
+                    throw new ArgumentException("The argument 'zone_prefix' is invalid");
+                }
+                int cnt = _bitcnt / 4;
+                byte[] zone = new byte[cnt];
+
+                int odd = (cnt % 2);
+                int dat_idx = 0;
+                for (int i = 0; i < cnt; i += 2, dat_idx++)
+                {
+                    byte dat = _dat[dat_idx];
+                    if (i > 0 || odd == 0)
+                    {
+                        zone[i - odd] = (byte)(zone_prefix | (dat >> 4));
+                    }
+                    zone[i - odd + 1] = (byte)(zone_prefix | (dat & 0x0f));
+                }
+
+                // 符号部
+                if (zone_prefix == 0x30)
+                {
+                    if (_signed)
+                    {
+                        zone[cnt - 1] |= 0x40;
+                    }
+                }
+                else
+                {
+                    zone[cnt - 1] &= 0x0F;
+                    if (_signed)
+                    {
+                        zone[cnt - 1] |= 0xD0;
+                    }
+                    else
+                    {
+                        zone[cnt - 1] |= 0xC0;
+                    }
+                }
+
+                return new ByteArray(zone);
+            }
+
+            public ByteArray Signed()
+            {
+                ByteArray ba = new ByteArray(this._dat).Clone();
+                int cnt = _bitcnt / 4;
+                if ((cnt % 2) == 0)
+                {
+                    ba.Expand(1);
+                    // 右4ビットシフト
+                    ba.HalfShiftRight();
+                }
+                else
+                {
+                    // 左4ビットシフト
+                    ba.HalfShiftLeft();
+                }
+
+                if(_signed)
+                {
+                    ba._dat[ba.Length() - 1] |= 0x0D;
+                }
+                else
+                {
+                    ba._dat[ba.Length() - 1] |= 0x0C;
+                }
+
+                return ba;
+            }
+
+            // Pack() の引数チェック用
+            static readonly UInt64[] NUM_MAX = new UInt64[] {
+                0,
+                9,
+                99,
+                999,
+                9999,
+                9_9999,
+                99_9999,
+                999_9999,
+                9999_9999,
+                9_9999_9999,
+                99_9999_9999,
+                999_9999_9999,
+                9999_9999_9999,
+                9_9999_9999_9999,
+                99_9999_9999_9999,
+                999_9999_9999_9999,
+                9999_9999_9999_9999,
+            };
         }
     }
 }
