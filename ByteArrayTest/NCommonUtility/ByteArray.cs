@@ -405,7 +405,7 @@ namespace NCommonUtility
             {
                 if (cnt < 0)
                 {
-                    // cnt がマイナスなら ofs よりさらに右が開始位置
+                    // cnt もマイナスなら ofs よりさらに左が開始位置
                     ofs += cnt;
                 }
                 ofs = -ofs;
@@ -460,7 +460,6 @@ namespace NCommonUtility
                 }
             }
 
-
             // コピーすべきデータがあればコピーする
             if (src_ofs < src.Length)
             {
@@ -503,6 +502,7 @@ namespace NCommonUtility
 
             return BitConverter.ToInt32(val, 0);
         }
+
         public long to_long()
         {
             if (_dat.Length > 8 || _dat.Length < 1)
@@ -688,6 +688,7 @@ namespace NCommonUtility
 
             return new ByteArray(buf);
         }
+
         static public ByteArray StrToByte(string str)
         {
             Regex r = new Regex("[^0-9a-fA-F]");
@@ -720,6 +721,9 @@ namespace NCommonUtility
         }
 
 
+
+
+
         /// <summary>
         /// 二進化十進クラス
         /// </summary>
@@ -743,7 +747,6 @@ namespace NCommonUtility
                 int byte_len = (_bitcnt + 7) / 8;
                 base.Expand(byte_len);
             }
-
 
             public ByteArrayBcd Pack(int num)
             {
@@ -827,6 +830,7 @@ namespace NCommonUtility
                 {
                     if (_signed)
                     {
+                        // Zone()でASCII系(0x3)の時、マイナスの符号部は 0x7(プラスの時は 0x3 のまま)
                         zone[cnt - 1] |= 0x40;
                     }
                 }
@@ -835,10 +839,12 @@ namespace NCommonUtility
                     zone[cnt - 1] &= 0x0F;
                     if (_signed)
                     {
+                        // EBCDIC系の時、マイナスの符号部は 0xD
                         zone[cnt - 1] |= 0xD0;
                     }
                     else
                     {
+                        // EBCDIC系の時、プラスの符号部は 0xC
                         zone[cnt - 1] |= 0xC0;
                     }
                 }
@@ -846,6 +852,11 @@ namespace NCommonUtility
                 return new ByteArray(zone);
             }
 
+            /// <summary>
+            /// パック10進数に符号部を付加する
+            /// </summary>
+            /// <remarks>マイナスの符号部は 0xD、プラスの符号部は 0xC</remarks>
+            /// <returns>生成したByteArray</returns>
             public ByteArray Signed()
             {
                 ByteArray ba = new ByteArray(this._dat).Clone();
