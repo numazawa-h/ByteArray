@@ -37,6 +37,22 @@ namespace ByteArrayTestProject
             Assert.AreEqual("12345678", ba.to_hex());
             ba = new ByteArray((UInt64)0x1234567812345678);
             Assert.AreEqual("1234567812345678", ba.to_hex());
+            ba = new ByteArray(unchecked((byte)-12));
+            Assert.AreEqual("F4", ba.to_hex());
+            Assert.AreEqual(-12, ba.to_int());
+            ba = new ByteArray(unchecked((UInt16)(-(0x1234))));
+            Assert.AreEqual("EDCC", ba.to_hex());
+            Assert.AreEqual(-(0x1234), ba.to_int());
+            ba = new ByteArray(unchecked((UInt32)(-(0x12345678))));
+            Assert.AreEqual("EDCBA988", ba.to_hex());
+            Assert.AreEqual(-(0x12345678), ba.to_int());
+            Assert.AreEqual(-(0x12345678), ba.to_long());
+            ba = new ByteArray(unchecked((UInt64)(-(0x1234567812345678))));
+            Assert.AreEqual("EDCBA987EDCBA988", ba.to_hex());
+            Assert.AreEqual(-(0x1234567812345678), ba.to_long());
+            long bignum = -(0x1234567812345678);
+            ba = new ByteArray((UInt64)bignum);     // 定数でなければ単純にキャストすればOK
+            Assert.AreEqual("EDCBA987EDCBA988", ba.to_hex());
 
             // 日時コンストラクタ
             ba = new ByteArray(new DateTime(2021, 4, 15, 23, 59, 59, 999), "yyyyMMddHHmmss");

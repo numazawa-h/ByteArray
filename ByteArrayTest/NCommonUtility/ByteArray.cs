@@ -494,6 +494,11 @@ namespace NCommonUtility
             }
 
             byte[] val = new byte[4];
+            if ((_dat[0] & 0x80) != 0)
+            {
+                // マイナス値なら val を 0xFF で埋める
+                new ByteArray(val).Fill();
+            }
             Buffer.BlockCopy(_dat, 0, val, 4 - _dat.Length, _dat.Length);
             if (BitConverter.IsLittleEndian)
             {
@@ -511,6 +516,11 @@ namespace NCommonUtility
             }
 
             byte[] val = new byte[8];
+            if ((_dat[0] & 0x80) != 0)
+            {
+                // マイナス値なら val を 0xFF で埋める
+                new ByteArray(val).Fill();
+            }
             Buffer.BlockCopy(_dat, 0, val, 8 - _dat.Length, _dat.Length);
 
             if (BitConverter.IsLittleEndian)
