@@ -288,16 +288,22 @@ namespace ByteArrayTestProject
             Assert.AreEqual("00123C", ba.to_hex());         // 4桁だと奇数になるので先頭4ビットがゼロになる
             ba = ByteArray.Bcd(3).Pack(-123).Signed();
             Assert.AreEqual("123D", ba.to_hex());           // マイナス識別 0xD を追加
-            ba = ByteArray.Bcd(4).Pack(-123).Signed();
+            ba = ByteArray.Bcd(4).Pack(-123);
+            Assert.AreEqual("0123", ba.to_hex());           // Pack() だけだとマイナスは無視
+            ba = ByteArray.Bcd(4).Pack(-123).UnPack();
+            Assert.AreEqual(-123, ba.to_int());             // UnPack()で2進形式
 
             ba = ByteArray.Bcd(3).Pack(-123).Zone();
-            Assert.AreEqual("313273", ba.to_hex());         // Zone()でASCII系(0x3)ゾーン(マイナスは0x7)
+            Assert.AreEqual("313273", ba.to_hex());               // Zone()でASCII系(0x3)ゾーン(マイナスは0x7)
+            Assert.AreEqual(-123, ba.UnZone().UnPack().to_int()); // UnZone() でパック形式、UnPack() で2進形式
             ba = ByteArray.Bcd(3).Pack(123).Zone();
-            Assert.AreEqual("313233", ba.to_hex());         // ASCII系(0x3)ゾーンでプラスは0x3 のまま
+            Assert.AreEqual("313233", ba.to_hex());               // ASCII系(0x3)ゾーンでプラスは0x3 のまま
             ba = ByteArray.Bcd(3).Pack(-123).Zone(0xf0);
-            Assert.AreEqual("F1F2D3", ba.to_hex());         // Zone()の引数でゾーンの上4ビットを指定できる(マイナスは0xD)
+            Assert.AreEqual("F1F2D3", ba.to_hex());               // Zone()の引数でゾーンの上4ビットを指定できる(マイナスは0xD)
+            Assert.AreEqual(-123, ba.UnZone().UnPack().to_int()); // UnZone() でパック形式、UnPack() で2進形式
             ba = ByteArray.Bcd(3).Pack(123).Zone(0xf0);
-            Assert.AreEqual("F1F2C3", ba.to_hex());         // Zone()で引数を指定したらプラスは0xC
+            Assert.AreEqual("F1F2C3", ba.to_hex());               // Zone()で引数を指定したらプラスは0xC
+            Assert.AreEqual(123, ba.UnZone().UnPack().to_int());  // UnZone() でパック形式、UnPack() で2進形式
 
             Exception ex;
             ex = Assert.ThrowsException<ArgumentException>(() =>
@@ -335,6 +341,9 @@ namespace ByteArrayTestProject
             {
                 ba = ByteArray.Bcd(3).Pack(123).Zone(0x12); // Zone()の引数下4ビットはゼロにしなければならない
             });
+
+
+
         }
     }
 }

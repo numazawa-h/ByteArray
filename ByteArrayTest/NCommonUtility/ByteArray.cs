@@ -670,6 +670,15 @@ namespace NCommonUtility
             return enc.GetString(_dat);
         }
 
+        /// <summary>
+        /// ゾーン形式二進化十進をパック形式に変換する
+        /// </summary>
+        /// <returns></returns>
+        public ByteArrayBcd UnZone()
+        {
+            return ByteArrayBcd.UnZone(this);
+        }
+
         //
         // static変換
         //
@@ -894,6 +903,79 @@ namespace NCommonUtility
 
                 return ba;
             }
+
+            public ByteArray UnPack()
+            {
+                ByteArray bcd = this.Clone();
+                int digits = _bitcnt >> 2;      // 10進桁数
+                if( (digits % 2) == 1)
+                {
+                    bcd.HalfShiftLeft();        // 奇数桁なら最初の4ビットは無視
+                }
+                UInt64 num = 0;
+                for (int i = 0; i< digits; i++)
+                {
+                    num = (num << 3) + (num << 1);   // 10倍にする(8倍プラス2倍)
+                    num += (UInt64)bcd._dat[0]>>4;
+                    bcd.HalfShiftLeft();
+                }
+                if (_signed == true)
+                {
+                    num = ~num + 1;             // マイナス値にする
+                }
+
+                // 10進桁数に合わせてバイト長を決める
+                ByteArray ba = null;
+                switch ((digits + 1) / 2)
+                {
+                    case 1:
+                        ba = new ByteArray((byte)num);
+                        break;
+                    case 2:
+                        ba = new ByteArray((UInt16)num);
+                        break;
+                    case 4:
+                        ba = new ByteArray((UInt32)num);
+                        break;
+                    case 8:
+                        ba = new ByteArray(num);
+                        break;
+                }
+
+                return ba;
+            }
+
+            /// <summary>
+            /// ゾーン形式二進化十進をパック形式に変換する
+            /// </summary>
+            /// <returns></returns>
+            static public ByteArrayBcd UnZone(ByteArray ba)
+            {
+                int cnt = ba.Length();
+                ByteArrayBcd bcd = new ByteArrayBcd(cnt);
+                switch(ba._dat[ba.Length() - 1] & 0xF0)
+                {
+                    case 0xD0:  // EBCDIC系の時、マイナスの符号部は 0xD
+                    case 0x70:  // ASCII系の時、マイナスの符号部は 0x7
+                        bcd._signed = true;
+                        break;
+                }
+
+                int odd = (cnt % 2);
+                if (odd == 1)
+                {
+                    // 奇数桁の時、先頭桁を先に処理
+                    bcd._dat[0] = (byte)(ba._dat[0] & 0x0F);
+                }
+                int dat_idx = odd;
+                for (int i = odd; i < cnt; i += 2, dat_idx++)
+                {
+                    bcd._dat[dat_idx] = (byte)((ba._dat[i] & 0x0F) <<4 | (ba._dat[i+1] & 0x0F));
+                }
+
+                return bcd;
+            }
+
 
             // Pack() の引数チェック用
             static readonly UInt64[] NUM_MAX = new UInt64[] {
