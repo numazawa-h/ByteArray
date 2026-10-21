@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ByteArrayTest\ByteArraySample.csproj" />
+    <ProjectReference Include="..\ByteArraySample\ByteArraySample.csproj" />
   </ItemGroup>
 
   <ItemGroup>
