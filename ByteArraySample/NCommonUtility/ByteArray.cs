@@ -22,6 +22,12 @@ namespace NCommonUtility
         {
             _dat = System.Array.Empty<byte>();
         }
+
+        //
+        // 整数系コンストラクタ(1バイトから8バイト)
+        // マイナス値はキャストして使う(定数の時はキャストでエラーになるのでunchecked()で囲う)
+        //
+
         public ByteArray(Byte num)
         {
             _dat = new Byte[1];
@@ -314,6 +320,12 @@ namespace NCommonUtility
             return Take(0, cnt);
         }
 
+        /// <summary>
+        /// 部分の取得
+        /// </summary>
+        /// <param name="ofs">オフセット(マイナスの時は末尾からの相対)(cntがマイナスならofsが0の時も末尾から)</param>
+        /// <param name="cnt">取得するバイト数(マイナスの時はオフセットより前の部分が対象)</param>
+        /// <returns>指定された部分をByteArrayで返却</returns>
         public ByteArray Take(int ofs, int cnt)
         {
             int src_ofs = 0;    // データ取得のオフセット
@@ -469,6 +481,19 @@ namespace NCommonUtility
             return this;
         }
 
+        /// <summary>
+        /// バイト配列の取得
+        /// </summary>
+        /// <remarks>
+        /// 当メソッドはコピーを生成して返却する。
+        /// 参照で直接変更したい時は、予め呼び出し元でバイト配列生成しておいて、それをコンストラクタに渡す。
+        ///     Byte[] dat = { 0x01, 0x23, 0x45, 0x67 };
+        ///     ba = new ByteArray(dat);
+        ///     Assert.AreEqual("01234567", ba.to_hex());
+        ///     dat[1] = 0xfe;
+        ///     Assert.AreEqual("01FE4567", ba.to_hex());
+        /// </remarks>
+        /// <returns>コピーされたバイト配列</returns>
         public byte[] GetData()
         {
             if (_dat.Length == 0)
