@@ -594,27 +594,21 @@ namespace NCommonUtility
         {
             int capacity = _dat.Length * ((sep == null)? 2 :sep.Length + 2);  // separate_sizeは無視して大き目に設定
             StringBuilder sb = new StringBuilder(capacity);
-            bool bFirst = true;
-            int separate_cnt = 0;
+            if (sep == null || separate_size == 0)
+            {
+                separate_size = -1;
+            }
+
+            int separate_cnt = separate_size;
             for (int i = 0; i < _dat.Length; i++)
             {
-                if (sep != null)
+                if (separate_cnt == 0)
                 {
-                    if (bFirst)
-                    {
-                        bFirst = false;
-                    }
-                    else
-                    {
-                        ++separate_cnt;
-                        if (separate_cnt >= separate_size)
-                        {
-                            sb.Append(sep);
-                            separate_cnt = 0;
-                        }
-                    }
+                    sb.Append(sep);
+                    separate_cnt = separate_size;
                 }
                 sb.Append(HEX_TABLE[_dat[i]]);
+                --separate_cnt;
             }
 
             return sb.ToString();
@@ -628,26 +622,20 @@ namespace NCommonUtility
         /// <returns>表示できない文字はピリオド(".")に変換</returns>
         public string to_text_ascii(string sep = null, int separate_size = 1)
         {
-            StringBuilder sb = new StringBuilder();
-            bool bFirst = true;
-            int separate_cnt = 0;
+            int capacity = _dat.Length * ((sep == null) ? 1 : sep.Length + 1);  // separate_sizeは無視して大き目に設定
+            StringBuilder sb = new StringBuilder(capacity);
+            if (sep == null || separate_size == 0)
+            {
+                separate_size = -1;
+            }
+
+            int separate_cnt = separate_size;
             for (int i = 0; i < _dat.Length; i++)
             {
-                if (sep != null)
+                if (separate_cnt == 0)
                 {
-                    if (bFirst)
-                    {
-                        bFirst = false;
-                    }
-                    else
-                    {
-                        ++separate_cnt;
-                        if (separate_cnt >= separate_size)
-                        {
-                            sb.Append(sep);
-                            separate_cnt = 0;
-                        }
-                    }
+                    sb.Append(sep);
+                    separate_cnt = separate_size;
                 }
                 byte b = _dat[i];
                 if (b < 0x20 || b > 0x7e)
@@ -658,6 +646,7 @@ namespace NCommonUtility
                 {
                     sb.Append((char)b);
                 }
+                --separate_cnt;
             }
 
             return sb.ToString();
