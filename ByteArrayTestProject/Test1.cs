@@ -261,6 +261,14 @@ namespace ByteArrayTestProject
             ba = ByteArray.ParseHex("1234567890abcdef");
             Assert.AreEqual("234567890ABCDEF0", ba.HalfShiftLeft().to_hex());  // 左4ビットシフト
             Assert.AreEqual("0234567890ABCDEF", ba.HalfShiftRight().to_hex()); // 右4ビットシフト
+
+            // IndexOf()
+            ba = ByteArray.ParseHex("1234567890abcdef");
+            Assert.AreEqual(5, ba.IndexOf(0xab));
+            Assert.AreEqual(6, ba.IndexOf(ByteArray.ParseHex("cdef")));
+            Assert.AreEqual(7, ba.IndexOf(ByteArray.ParseHex("ef")));
+            Assert.AreEqual(-1, ba.IndexOf(ByteArray.ParseHex("ef00")));
+
         }
 
         [TestMethod]

@@ -94,6 +94,45 @@ namespace NCommonUtility
             return _dat.Length;
         }
 
+        /// <summary>
+        /// バイト列検索
+        /// </summary>
+        /// <param name="pattern">検索するパターン</param>
+        /// <returns>見つからない時：-1、見つかった時：先頭のオフセット</returns>
+        public int IndexOf(byte pattern)
+        {
+            return Array.IndexOf(_dat, pattern);
+        }
+        public int IndexOf(ByteArray pattern)
+        {
+            return IndexOf(pattern._dat);
+        }
+        public int IndexOf(byte[] pattern)
+        {
+            if (pattern == null) return -1;
+            if (pattern.Length == 0) return 0;
+            if (_dat.Length < pattern.Length) return -1;
+
+            int offset = Array.IndexOf(_dat, pattern[0]);
+            while (offset <= _dat.Length - pattern.Length)
+            {
+                if (offset < 0) break;
+                bool isMatch = true;
+                for (int i = 1; i < pattern.Length; i++)
+                {
+                    if (_dat[offset + i] != pattern[i])
+                    {
+                        isMatch = false;
+                        break;
+                    }
+                }
+                if (isMatch) return offset;
+                offset = Array.IndexOf(_dat, pattern[0], offset + 1);
+            }
+
+            return -1;
+        }
+
         public ByteArray Clone()
         {
             Byte[] dst = new Byte[_dat.Length];
