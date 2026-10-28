@@ -18,6 +18,9 @@ namespace NCommonUtility
         // 保持データ
         protected byte[] _dat;
 
+        // システム依存の改行コード
+        static public readonly ByteArray NewLine = new ByteArray(Environment.NewLine);
+
         public ByteArray()
         {
             _dat = System.Array.Empty<byte>();
